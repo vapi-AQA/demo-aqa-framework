@@ -1,0 +1,58 @@
+name: AQA framework CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: aqa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-and-offline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: |
+          pip install -e ".[dev]"
+          playwright install --with-deps chromium
+      - name: Lint
+        run: ruff check .
+      - name: Unit + local API tests
+        run: pytest tests/unit tests/e2e/test_api_contract.py tests/e2e/test_api_users.py tests/e2e/test_api_validation.py tests/e2e/test_api_auth_and_search.py --alluredir=allure-results
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-results-offline
+          path: aqa-framework/allure-results
+
+  e2e-live:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          pip install -e ".[dev]"
+          playwright install --with-deps chromium
+      - name: Live E2E
+        env:
+          RUN_LIVE_TESTS: "1"
+          AQA_LOGIN: ${{ secrets.AQA_LOGIN }}
+          AQA_PASSWORD: ${{ secrets.AQA_PASSWORD }}
+        run: pytest -n 2 --alluredir=allure-results
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-results-live
+          path: aqa-framework/allure-results

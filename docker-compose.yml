@@ -1,0 +1,13 @@
+services:
+  tests:
+    build: .
+    image: aqa-framework:local
+    working_dir: /app
+    environment:
+      # Set to "1" to include live/browser/external tests
+      RUN_LIVE_TESTS: "${RUN_LIVE_TESTS:-0}"
+      AQA_BASE_URL: "${AQA_BASE_URL:-https://playwright.dev/}"
+    volumes:
+      - ./allure-results:/app/allure-results
+    # Example: docker compose run --rm tests pytest -m "not live" -q
+    command: ["pytest", "-m", "not live", "-q"]

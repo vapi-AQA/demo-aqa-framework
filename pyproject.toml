@@ -1,0 +1,40 @@
+[project]
+name = "aqa-framework"
+version = "1.0.0"
+description = "Modern Python E2E/API test framework template (POM + Allure + API contracts)"
+requires-python = ">=3.10"
+dependencies = [
+    "pytest>=9.2.0",
+    "pytest-playwright>=0.10.0",
+    "allure-pytest>=2.16.2",
+    "playwright>=1.65.2",
+    "jsonschema>=4.26.0",
+    "Faker>=40.54.0",
+    "python-dotenv>=1.2.4",
+]
+
+[project.optional-dependencies]
+dev = ["ruff>=0.17.6", "pytest-xdist>=3.8.0", "pytest-cov>=7.1.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+markers = [
+    "live: tests that require external network",
+    "smoke: critical path subset",
+    "api: API/contract tests",
+    "ui: browser tests",
+]
+addopts = "-ra --strict-markers"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "ASYNC", "S"]
+ignore = ["S101", "S105", "S106"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "S311"]
