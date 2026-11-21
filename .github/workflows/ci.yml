@@ -14,8 +14,8 @@ jobs:
   static-and-offline:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
@@ -27,7 +27,7 @@ jobs:
         run: ruff check .
       - name: Unit + local API tests
         run: pytest tests/unit tests/e2e/test_api_contract.py tests/e2e/test_api_users.py tests/e2e/test_api_validation.py tests/e2e/test_api_auth_and_search.py --alluredir=allure-results
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: allure-results-offline
@@ -37,8 +37,8 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Install
@@ -51,7 +51,7 @@ jobs:
           AQA_LOGIN: ${{ secrets.AQA_LOGIN }}
           AQA_PASSWORD: ${{ secrets.AQA_PASSWORD }}
         run: pytest -n 2 --alluredir=allure-results
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: allure-results-live
